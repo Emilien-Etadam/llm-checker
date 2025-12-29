@@ -1,0 +1,8 @@
+# LLM Checker GUI - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core dependency for system information
+psutil==5.9.8
+
+# PyInstaller for creating Windows executable
+pyinstaller==6.3.0
