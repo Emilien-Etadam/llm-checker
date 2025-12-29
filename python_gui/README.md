@@ -10,12 +10,12 @@ Application Windows standalone qui détecte votre hardware et recommande les mei
   - GPU AMD (via rocm-smi)
   - Mémoire système et VRAM
 
-- ✅ **Synchronisation en Ligne** 🌐 **NOUVEAU**
-  - Fetch automatique des derniers modèles depuis ollama.com
-  - Cache SQLite local pour mode offline
-  - Bouton "Sync Models" pour mise à jour manuelle
+- ✅ **Synchronisation en Ligne** 🌐 **OBLIGATOIRE**
+  - Synchronisation automatique au démarrage depuis ollama.com
+  - **Toujours à jour** avec les derniers modèles Ollama !
+  - Bouton "Sync Models" pour re-synchroniser manuellement
   - Indicateur de fraîcheur des données
-  - **Toujours à jour** avec les nouveaux modèles Ollama !
+  - **⚠️ Connexion Internet requise**
 
 - ✅ **Recommandations Intelligentes**
   - Score multi-dimensionnel (Quality, Speed, Fit, Context)
@@ -30,11 +30,11 @@ Application Windows standalone qui détecte votre hardware et recommande les mei
   - Bouton Sync pour mettre à jour la base de modèles
   - Affichage des commandes `ollama pull` à copier
 
-- ✅ **100% Standalone**
+- ✅ **Standalone & Simple**
   - Un seul fichier .exe
   - Pas besoin de Python installé
   - Toutes les dépendances incluses
-  - Fonctionne offline après première sync
+  - **Connexion Internet requise** (synchronisation en temps réel)
   - Taille optimisée (15-25 MB)
 
 ## 📸 Capture d'Écran
@@ -72,13 +72,14 @@ Application Windows standalone qui détecte votre hardware et recommande les mei
 ## 🏃 Quick Start (Pour Utilisateurs)
 
 1. **Télécharger `LLM_Checker.exe`**
-2. **Double-cliquer** sur le fichier
-3. **Voir les résultats** immédiatement !
-4. **Cliquer sur "🌐 Sync Models"** pour télécharger les derniers modèles (recommandé)
+2. **Vérifier que vous avez Internet** (obligatoire)
+3. **Double-cliquer** sur le fichier
+4. **L'app synchronise automatiquement** les modèles depuis ollama.com (~30 sec)
+5. **Voir les résultats** immédiatement !
 
 C'est tout ! Aucune installation requise.
 
-**Note:** La première fois, l'app utilise une base de modèles embarquée. Cliquez sur "Sync Models" pour télécharger la liste complète et à jour depuis ollama.com (nécessite une connexion Internet).
+**⚠️ IMPORTANT:** Une connexion Internet est **obligatoire** car l'application synchronise toujours les derniers modèles depuis ollama.com à chaque démarrage. Cela garantit que vous avez toujours les modèles les plus récents.
 
 ## 🛠️ Build Instructions (Pour Développeurs)
 
@@ -170,21 +171,21 @@ Implémente:
 - Estimation de tokens/seconde
 - Filtrage par compatibilité mémoire
 
-### 3. Model Database (`model_database.py`)
+### 3. Ollama Sync (`ollama_sync.py`) 🌐
 
-Base de données **fallback** pour mode offline:
-- 80+ variantes de modèles Ollama populaires
-- Qwen 2.5, Llama 3.x, DeepSeek, Phi, Gemma, Mistral, etc.
-- Différentes quantizations (Q8_0, Q6_K, Q4_K_M, etc.)
-
-### 4. Ollama Sync (`ollama_sync.py`) 🌐
-
-Synchronisation en ligne:
-- Fetch modèles depuis ollama.com/library
+Synchronisation en ligne **OBLIGATOIRE**:
+- Fetch modèles depuis ollama.com/library à chaque démarrage
 - Parse HTML pour extraire tous les modèles et variantes
-- Cache SQLite local (~/.llm_checker/models_cache.db)
-- Mode offline : utilise le cache ou fallback sur model_database.py
+- Cache SQLite local (~/.llm_checker/models_cache.db) pour optimisation
 - Retry logic et gestion d'erreurs robuste
+- Garantit toujours les données les plus récentes
+
+### 4. Model Database (`model_database.py`)
+
+⚠️ **DEPRECATED** - Fichier conservé uniquement pour référence:
+- Ancienne base de données hardcodée (80+ modèles)
+- Non utilisé en mode production (app online-only)
+- Peut servir pour développement/tests offline
 
 ## 📊 Compatibilité
 
@@ -198,6 +199,7 @@ Synchronisation en ligne:
 ### OS Supporté
 
 - ✅ **Windows 7/8/10/11** (64-bit)
+- ✅ **Connexion Internet** (obligatoire)
 - ⚠️ Linux/Mac : Peut fonctionner avec Python, mais .exe est Windows-only
 
 ## 🤝 Contribution
@@ -216,9 +218,9 @@ Ce projet est une version GUI standalone du projet [llm-checker](https://github.
 - ✅ GUI Windows au lieu de CLI
 - ✅ Python au lieu de Node.js
 - ✅ .exe standalone (pas besoin d'installation)
-- ✅ Synchronisation en ligne avec ollama.com 🌐
-- ✅ **Même nombre de modèles** après sync (tous les modèles Ollama disponibles)
-- ✅ Cache SQLite pour mode offline
+- ✅ **Synchronisation automatique** à chaque démarrage 🌐
+- ✅ **Toujours à jour** - tous les modèles Ollama en temps réel
+- ⚠️ **Connexion Internet requise** (online-only, pas de mode offline)
 
 ## 📄 License
 

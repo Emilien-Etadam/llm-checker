@@ -2,6 +2,8 @@
 
 Ce guide vous explique comment créer un fichier .exe Windows standalone à partir du code Python.
 
+**⚠️ IMPORTANT:** L'application finale nécessitera une **connexion Internet active** pour fonctionner, car elle synchronise les modèles depuis ollama.com à chaque démarrage.
+
 ## 📋 Prérequis
 
 ### Sur Windows (Recommandé pour créer le .exe)

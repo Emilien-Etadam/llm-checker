@@ -42,11 +42,11 @@ class LLMCheckerGUI:
         # Setup UI
         self.create_widgets()
 
-        # Load models and update UI
-        self.root.after(100, self.load_models)
+        # Sync models online at startup (required)
+        self.root.after(100, self.sync_on_startup)
 
-        # Auto-detect on startup
-        self.root.after(700, self.run_detection)
+        # Auto-detect hardware after models loaded
+        # Will be triggered by sync completion
 
     def create_widgets(self):
         """Create all GUI widgets"""
@@ -225,33 +225,54 @@ class LLMCheckerGUI:
         else:
             self.last_sync_label.config(text="📅 Never synced")
 
-    def load_models(self):
-        """Load models from cache or online"""
-        thread = threading.Thread(target=self._load_models_worker, daemon=True)
+    def sync_on_startup(self):
+        """Sync models at startup - REQUIRED (online-only mode)"""
+        self.update_status("🌐 Syncing models from ollama.com...")
+        self.sync_btn.config(state=tk.DISABLED)
+        self.refresh_btn.config(state=tk.DISABLED)
+
+        thread = threading.Thread(target=self._startup_sync_worker, daemon=True)
         thread.start()
 
-    def _load_models_worker(self):
-        """Worker thread to load models"""
+    def _startup_sync_worker(self):
+        """Worker thread for startup sync"""
         try:
-            # Try to get from cache first (don't force sync on startup)
-            self.models = self.sync.get_models(force_sync=False)
+            # Progress callback
+            def on_progress(msg):
+                self.root.after(0, lambda m=msg: self.update_status(f"🌐 {m}"))
 
-            # If no models from cache/online, use hardcoded
+            # Force sync from online (required)
+            count = self.sync.sync_models(on_progress=on_progress)
+
+            # Load synced models
+            self.models = self.sync.get_cached_models()
+
             if not self.models:
-                self.root.after(0, lambda: self.update_status("⚠️ Using offline database"))
-                self.models = get_popular_models()
-            else:
-                num_models = len(self.models)
-                self.root.after(0, lambda: self.update_status(f"✅ Loaded {num_models} models from cache"))
+                raise Exception("No models received from ollama.com")
 
-            # Update last sync label
+            # Update UI
+            self.root.after(0, lambda: self.update_status(f"✅ Synced {count} models from ollama.com"))
             self.root.after(0, self.update_last_sync_label)
+
+            # Now run hardware detection
+            self.root.after(500, self.run_detection)
 
         except Exception as e:
-            # Fallback to hardcoded
-            self.models = get_popular_models()
-            self.root.after(0, lambda: self.update_status("⚠️ Using offline database"))
+            # Show error - Internet connection required
+            error_msg = (
+                f"Failed to sync models from ollama.com:\n\n{str(e)}\n\n"
+                "This application requires an active Internet connection to fetch "
+                "the latest models from ollama.com.\n\n"
+                "Please check your connection and restart the application."
+            )
+            self.root.after(0, lambda: messagebox.showerror("Internet Connection Required", error_msg))
+            self.root.after(0, lambda: self.update_status("❌ Sync failed - Internet required"))
             self.root.after(0, self.update_last_sync_label)
+
+        finally:
+            # Re-enable buttons
+            self.root.after(0, lambda: self.sync_btn.config(state=tk.NORMAL))
+            self.root.after(0, lambda: self.refresh_btn.config(state=tk.NORMAL))
 
     def run_sync(self):
         """Run model synchronization in background thread"""
@@ -264,17 +285,20 @@ class LLMCheckerGUI:
         thread.start()
 
     def _sync_worker(self):
-        """Worker function for syncing models"""
+        """Worker function for manual sync"""
         try:
             # Progress callback
             def on_progress(msg):
-                self.root.after(0, lambda: self.update_status(f"🌐 {msg}"))
+                self.root.after(0, lambda m=msg: self.update_status(f"🌐 {m}"))
 
-            # Sync models
+            # Sync models from online
             count = self.sync.sync_models(on_progress=on_progress)
 
             # Reload models
             self.models = self.sync.get_cached_models()
+
+            if not self.models:
+                raise Exception("No models received")
 
             # Update UI
             self.root.after(0, lambda: self.update_status(f"✅ Synced {count} models!"))
@@ -290,9 +314,9 @@ class LLMCheckerGUI:
             self.root.after(1000, self.run_detection)
 
         except Exception as e:
-            error_msg = f"Sync failed: {str(e)}\n\nUsing cached or offline models."
-            self.root.after(0, lambda: messagebox.showwarning("Sync Failed", error_msg))
-            self.root.after(0, lambda: self.update_status("❌ Sync failed - using cache"))
+            error_msg = f"Sync failed: {str(e)}\n\nPlease check your Internet connection."
+            self.root.after(0, lambda: messagebox.showerror("Sync Failed", error_msg))
+            self.root.after(0, lambda: self.update_status("❌ Sync failed"))
 
         finally:
             # Re-enable buttons
@@ -324,14 +348,16 @@ class LLMCheckerGUI:
             # Get use case
             use_case = self.use_case_var.get()
 
+            # Check if models are loaded
+            if not self.models:
+                self.root.after(0, lambda: self.update_status("❌ No models loaded - please sync first"))
+                return
+
             # Score models
             self.root.after(0, lambda: self.update_status(f"Scoring models for {use_case}..."))
 
-            # Use loaded models (online/cache) or fallback to hardcoded
-            models = self.models if self.models else get_popular_models()
-
             self.recommendations = self.scorer.score_models(
-                models,
+                self.models,
                 self.hardware,
                 use_case=use_case,
                 limit=5
