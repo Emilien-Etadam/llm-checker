@@ -16,10 +16,15 @@ datas = []
 # Hidden imports that PyInstaller might miss
 hiddenimports = [
     'psutil',
+    'requests',
+    'requests.adapters',
+    'urllib3',
     'tkinter',
     'tkinter.ttk',
     'tkinter.scrolledtext',
     'threading',
+    'sqlite3',
+    'datetime',
 ]
 
 a = Analysis(

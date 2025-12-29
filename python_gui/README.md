@@ -10,6 +10,13 @@ Application Windows standalone qui détecte votre hardware et recommande les mei
   - GPU AMD (via rocm-smi)
   - Mémoire système et VRAM
 
+- ✅ **Synchronisation en Ligne** 🌐 **NOUVEAU**
+  - Fetch automatique des derniers modèles depuis ollama.com
+  - Cache SQLite local pour mode offline
+  - Bouton "Sync Models" pour mise à jour manuelle
+  - Indicateur de fraîcheur des données
+  - **Toujours à jour** avec les nouveaux modèles Ollama !
+
 - ✅ **Recommandations Intelligentes**
   - Score multi-dimensionnel (Quality, Speed, Fit, Context)
   - Top 5 modèles adaptés à votre hardware
@@ -20,13 +27,15 @@ Application Windows standalone qui détecte votre hardware et recommande les mei
   - Tkinter GUI propre et lisible
   - 7 use cases : general, coding, reasoning, chat, creative, fast, quality
   - Bouton Refresh pour relancer la détection
+  - Bouton Sync pour mettre à jour la base de modèles
   - Affichage des commandes `ollama pull` à copier
 
 - ✅ **100% Standalone**
   - Un seul fichier .exe
   - Pas besoin de Python installé
   - Toutes les dépendances incluses
-  - Taille optimisée (10-20 MB)
+  - Fonctionne offline après première sync
+  - Taille optimisée (15-25 MB)
 
 ## 📸 Capture d'Écran
 
@@ -55,8 +64,8 @@ Application Windows standalone qui détecte votre hardware et recommande les mei
 │  ║    ...                                          ║ │
 │  ╚═══════════════════════════════════════════════╝ │
 │                                                      │
-│  Use Case: [coding ▼]  [🔄 Refresh Detection]      │
-│                                         ✅ Ready     │
+│  Use Case: [coding ▼]  [🔄 Refresh] [🌐 Sync]       │
+│  📅 Last sync: 2h ago                    ✅ Ready   │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -65,8 +74,11 @@ Application Windows standalone qui détecte votre hardware et recommande les mei
 1. **Télécharger `LLM_Checker.exe`**
 2. **Double-cliquer** sur le fichier
 3. **Voir les résultats** immédiatement !
+4. **Cliquer sur "🌐 Sync Models"** pour télécharger les derniers modèles (recommandé)
 
 C'est tout ! Aucune installation requise.
+
+**Note:** La première fois, l'app utilise une base de modèles embarquée. Cliquez sur "Sync Models" pour télécharger la liste complète et à jour depuis ollama.com (nécessite une connexion Internet).
 
 ## 🛠️ Build Instructions (Pour Développeurs)
 
@@ -93,11 +105,14 @@ python_gui/
 ├── llm_checker_gui.py       # Application principale (GUI)
 ├── hardware_detector.py     # Module de détection hardware
 ├── model_scorer.py          # Moteur de scoring des modèles
-├── model_database.py        # Base de données des modèles Ollama
+├── model_database.py        # Base de données fallback (offline)
+├── ollama_sync.py          # Module de synchronisation en ligne 🌐
 ├── requirements.txt         # Dépendances Python
 ├── llm_checker.spec         # Configuration PyInstaller
+├── build_exe.bat            # Script de build automatique
 ├── README.md                # Ce fichier
-└── BUILD_INSTRUCTIONS.md    # Instructions de build détaillées
+├── BUILD_INSTRUCTIONS.md    # Instructions de build détaillées
+└── QUICK_START.txt          # Guide rapide
 ```
 
 ## 🎮 Utilisation
@@ -157,10 +172,19 @@ Implémente:
 
 ### 3. Model Database (`model_database.py`)
 
-Contient:
+Base de données **fallback** pour mode offline:
 - 80+ variantes de modèles Ollama populaires
 - Qwen 2.5, Llama 3.x, DeepSeek, Phi, Gemma, Mistral, etc.
 - Différentes quantizations (Q8_0, Q6_K, Q4_K_M, etc.)
+
+### 4. Ollama Sync (`ollama_sync.py`) 🌐
+
+Synchronisation en ligne:
+- Fetch modèles depuis ollama.com/library
+- Parse HTML pour extraire tous les modèles et variantes
+- Cache SQLite local (~/.llm_checker/models_cache.db)
+- Mode offline : utilise le cache ou fallback sur model_database.py
+- Retry logic et gestion d'erreurs robuste
 
 ## 📊 Compatibilité
 
@@ -192,8 +216,9 @@ Ce projet est une version GUI standalone du projet [llm-checker](https://github.
 - ✅ GUI Windows au lieu de CLI
 - ✅ Python au lieu de Node.js
 - ✅ .exe standalone (pas besoin d'installation)
-- ✅ Base de modèles simplifiée et embarquée
-- ⚠️ Moins de modèles que la version complète (80 vs 6900+)
+- ✅ Synchronisation en ligne avec ollama.com 🌐
+- ✅ **Même nombre de modèles** après sync (tous les modèles Ollama disponibles)
+- ✅ Cache SQLite pour mode offline
 
 ## 📄 License
 

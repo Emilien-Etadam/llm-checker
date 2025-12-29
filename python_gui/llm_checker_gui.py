@@ -7,9 +7,11 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext, messagebox
 import threading
 import sys
+from datetime import datetime
 from hardware_detector import HardwareDetector
 from model_scorer import ModelScorer
 from model_database import get_popular_models
+from ollama_sync import OllamaSync
 
 
 class LLMCheckerGUI:
@@ -24,8 +26,10 @@ class LLMCheckerGUI:
         # Initialize backend
         self.detector = HardwareDetector()
         self.scorer = ModelScorer()
+        self.sync = OllamaSync()
         self.hardware = None
         self.recommendations = []
+        self.models = []  # Will be loaded from online or cache
 
         # Color scheme
         self.bg_color = "#f0f0f0"
@@ -38,8 +42,11 @@ class LLMCheckerGUI:
         # Setup UI
         self.create_widgets()
 
+        # Load models and update UI
+        self.root.after(100, self.load_models)
+
         # Auto-detect on startup
-        self.root.after(500, self.run_detection)
+        self.root.after(700, self.run_detection)
 
     def create_widgets(self):
         """Create all GUI widgets"""
@@ -133,17 +140,42 @@ class LLMCheckerGUI:
         # Refresh button
         self.refresh_btn = tk.Button(
             control_frame,
-            text="🔄 Refresh Detection",
+            text="🔄 Refresh",
             command=self.run_detection,
             font=("Arial", 10, "bold"),
             bg=self.accent_color,
             fg="#ffffff",
             relief=tk.FLAT,
-            padx=15,
+            padx=12,
             pady=8,
             cursor="hand2"
         )
         self.refresh_btn.pack(side=tk.LEFT, padx=5)
+
+        # Sync models button
+        self.sync_btn = tk.Button(
+            control_frame,
+            text="🌐 Sync Models",
+            command=self.run_sync,
+            font=("Arial", 10, "bold"),
+            bg="#27ae60",
+            fg="#ffffff",
+            relief=tk.FLAT,
+            padx=12,
+            pady=8,
+            cursor="hand2"
+        )
+        self.sync_btn.pack(side=tk.LEFT, padx=5)
+
+        # Last sync label
+        self.last_sync_label = tk.Label(
+            control_frame,
+            text="",
+            font=("Arial", 8),
+            bg=self.bg_color,
+            fg="#888888"
+        )
+        self.last_sync_label.pack(side=tk.LEFT, padx=10)
 
         # Status label
         self.status_label = tk.Label(
@@ -169,6 +201,103 @@ class LLMCheckerGUI:
         """Update status label"""
         self.status_label.config(text=message)
         self.root.update_idletasks()
+
+    def update_last_sync_label(self):
+        """Update the last sync time label"""
+        last_sync = self.sync.get_last_sync_time()
+        if last_sync:
+            now = datetime.now()
+            delta = now - last_sync
+
+            if delta.total_seconds() < 60:
+                time_str = "just now"
+            elif delta.total_seconds() < 3600:
+                mins = int(delta.total_seconds() / 60)
+                time_str = f"{mins}m ago"
+            elif delta.total_seconds() < 86400:
+                hours = int(delta.total_seconds() / 3600)
+                time_str = f"{hours}h ago"
+            else:
+                days = int(delta.total_seconds() / 86400)
+                time_str = f"{days}d ago"
+
+            self.last_sync_label.config(text=f"📅 Last sync: {time_str}")
+        else:
+            self.last_sync_label.config(text="📅 Never synced")
+
+    def load_models(self):
+        """Load models from cache or online"""
+        thread = threading.Thread(target=self._load_models_worker, daemon=True)
+        thread.start()
+
+    def _load_models_worker(self):
+        """Worker thread to load models"""
+        try:
+            # Try to get from cache first (don't force sync on startup)
+            self.models = self.sync.get_models(force_sync=False)
+
+            # If no models from cache/online, use hardcoded
+            if not self.models:
+                self.root.after(0, lambda: self.update_status("⚠️ Using offline database"))
+                self.models = get_popular_models()
+            else:
+                num_models = len(self.models)
+                self.root.after(0, lambda: self.update_status(f"✅ Loaded {num_models} models from cache"))
+
+            # Update last sync label
+            self.root.after(0, self.update_last_sync_label)
+
+        except Exception as e:
+            # Fallback to hardcoded
+            self.models = get_popular_models()
+            self.root.after(0, lambda: self.update_status("⚠️ Using offline database"))
+            self.root.after(0, self.update_last_sync_label)
+
+    def run_sync(self):
+        """Run model synchronization in background thread"""
+        # Disable buttons during sync
+        self.sync_btn.config(state=tk.DISABLED)
+        self.refresh_btn.config(state=tk.DISABLED)
+        self.update_status("Syncing models from ollama.com...")
+
+        thread = threading.Thread(target=self._sync_worker, daemon=True)
+        thread.start()
+
+    def _sync_worker(self):
+        """Worker function for syncing models"""
+        try:
+            # Progress callback
+            def on_progress(msg):
+                self.root.after(0, lambda: self.update_status(f"🌐 {msg}"))
+
+            # Sync models
+            count = self.sync.sync_models(on_progress=on_progress)
+
+            # Reload models
+            self.models = self.sync.get_cached_models()
+
+            # Update UI
+            self.root.after(0, lambda: self.update_status(f"✅ Synced {count} models!"))
+            self.root.after(0, self.update_last_sync_label)
+
+            # Show success message
+            self.root.after(0, lambda: messagebox.showinfo(
+                "Sync Complete",
+                f"Successfully synced {count} model variants from ollama.com!\n\nThe database is now up to date."
+            ))
+
+            # Re-run detection with new models
+            self.root.after(1000, self.run_detection)
+
+        except Exception as e:
+            error_msg = f"Sync failed: {str(e)}\n\nUsing cached or offline models."
+            self.root.after(0, lambda: messagebox.showwarning("Sync Failed", error_msg))
+            self.root.after(0, lambda: self.update_status("❌ Sync failed - using cache"))
+
+        finally:
+            # Re-enable buttons
+            self.root.after(0, lambda: self.sync_btn.config(state=tk.NORMAL))
+            self.root.after(0, lambda: self.refresh_btn.config(state=tk.NORMAL))
 
     def run_detection(self):
         """Run hardware detection and model scoring in background thread"""
@@ -197,7 +326,10 @@ class LLMCheckerGUI:
 
             # Score models
             self.root.after(0, lambda: self.update_status(f"Scoring models for {use_case}..."))
-            models = get_popular_models()
+
+            # Use loaded models (online/cache) or fallback to hardcoded
+            models = self.models if self.models else get_popular_models()
+
             self.recommendations = self.scorer.score_models(
                 models,
                 self.hardware,

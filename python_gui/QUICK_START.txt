@@ -10,12 +10,15 @@
 
 1. Double-cliquez sur "LLM_Checker.exe"
 2. L'application détecte automatiquement votre hardware
-3. Consultez les 5 meilleurs modèles Ollama pour votre PC
-4. Changez le "Use Case" selon vos besoins
-5. Copiez les commandes "ollama pull" pour installer les modèles
+3. Cliquez sur "🌐 Sync Models" pour télécharger les derniers modèles
+   (nécessite Internet, ~30 secondes)
+4. Consultez les 5 meilleurs modèles Ollama pour votre PC
+5. Changez le "Use Case" selon vos besoins
+6. Copiez les commandes "ollama pull" pour installer les modèles
 
 ✅ Aucune installation requise!
 ✅ Fonctionne sur Windows 7/8/10/11
+✅ Toujours à jour avec les derniers modèles Ollama!
 
 
 ┌────────────────────────────────────────────────────────────────┐
@@ -84,7 +87,9 @@ python_gui/
 
 Attendez-vous à:
   • 15-25 MB sans compression UPX
-  • 8-15 MB avec compression UPX
+  • 10-18 MB avec compression UPX
+
+Le cache SQLite (~/.llm_checker/models_cache.db) fait ~2-5 MB
 
 
 ┌────────────────────────────────────────────────────────────────┐
@@ -108,7 +113,7 @@ Attendez-vous à:
    → Réinstallez Python et cochez "Add to PATH"
 
 ❌ "ModuleNotFoundError: No module named 'psutil'"
-   → pip install psutil
+   → pip install -r requirements.txt
 
 ❌ Le .exe ne se lance pas
    → Vérifiez dans dist/LLM_Checker.exe
@@ -116,6 +121,11 @@ Attendez-vous à:
 
 ❌ Antivirus bloque le .exe
    → Normal pour PyInstaller, ajoutez une exception
+
+❌ "Sync failed" ou pas de connexion Internet
+   → L'app utilisera la base de modèles embarquée
+   → Ou le cache SQLite si déjà syncé auparavant
+   → Réessayez le sync quand Internet est disponible
 
 
 ┌────────────────────────────────────────────────────────────────┐

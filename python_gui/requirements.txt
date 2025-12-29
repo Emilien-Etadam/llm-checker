@@ -4,5 +4,8 @@
 # Core dependency for system information
 psutil==5.9.8
 
+# HTTP requests for syncing models from ollama.com
+requests==2.31.0
+
 # PyInstaller for creating Windows executable
 pyinstaller==6.3.0
