@@ -1,0 +1,146 @@
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║          LLM CHECKER GUI - QUICK START GUIDE                  ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
+
+┌────────────────────────────────────────────────────────────────┐
+│  POUR LES UTILISATEURS (Utiliser le .exe)                     │
+└────────────────────────────────────────────────────────────────┘
+
+1. Double-cliquez sur "LLM_Checker.exe"
+2. L'application détecte automatiquement votre hardware
+3. Consultez les 5 meilleurs modèles Ollama pour votre PC
+4. Changez le "Use Case" selon vos besoins
+5. Copiez les commandes "ollama pull" pour installer les modèles
+
+✅ Aucune installation requise!
+✅ Fonctionne sur Windows 7/8/10/11
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  POUR LES DÉVELOPPEURS (Créer le .exe)                        │
+└────────────────────────────────────────────────────────────────┘
+
+═══ MÉTHODE 1: AUTOMATIQUE (Recommandé) ═══
+
+1. Double-cliquez sur "build_exe.bat"
+2. Suivez les instructions à l'écran
+3. Le .exe sera créé dans le dossier "dist/"
+
+═══ MÉTHODE 2: MANUELLE ═══
+
+1. Ouvrir un terminal (CMD ou PowerShell)
+
+2. Naviguer vers le dossier python_gui:
+   cd chemin\vers\llm-checker\python_gui
+
+3. Installer les dépendances:
+   pip install -r requirements.txt
+
+4. Tester l'application:
+   python llm_checker_gui.py
+
+5. Créer le .exe:
+   pyinstaller llm_checker.spec
+
+6. Le .exe sera dans: dist\LLM_Checker.exe
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  CONFIGURATION REQUISE                                         │
+└────────────────────────────────────────────────────────────────┘
+
+Pour UTILISER le .exe:
+  ✅ Windows 7/8/10/11 (64-bit)
+  ✅ Rien d'autre!
+
+Pour CRÉER le .exe:
+  ✅ Python 3.8 ou supérieur
+  ✅ pip (installé avec Python)
+  ✅ Connexion Internet (pour télécharger les dépendances)
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  STRUCTURE DU PROJET                                           │
+└────────────────────────────────────────────────────────────────┘
+
+python_gui/
+├── llm_checker_gui.py       ← Application principale
+├── hardware_detector.py     ← Détection hardware
+├── model_scorer.py          ← Scoring des modèles
+├── model_database.py        ← Base de 80+ modèles
+├── requirements.txt         ← Dépendances Python
+├── llm_checker.spec         ← Config PyInstaller
+├── build_exe.bat            ← Script de build automatique
+├── README.md                ← Documentation complète
+├── BUILD_INSTRUCTIONS.md    ← Instructions détaillées
+└── QUICK_START.txt          ← Ce fichier
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  TAILLE DU FICHIER .exe                                        │
+└────────────────────────────────────────────────────────────────┘
+
+Attendez-vous à:
+  • 15-25 MB sans compression UPX
+  • 8-15 MB avec compression UPX
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  USE CASES DISPONIBLES                                         │
+└────────────────────────────────────────────────────────────────┘
+
+• general   → Usage général, équilibré
+• coding    → Optimisé pour la programmation
+• reasoning → Raisonnement avancé
+• chat      → Conversation rapide
+• creative  → Écriture créative
+• fast      → Vitesse maximale
+• quality   → Qualité maximale
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  RÉSOLUTION DE PROBLÈMES                                       │
+└────────────────────────────────────────────────────────────────┘
+
+❌ "python n'est pas reconnu"
+   → Réinstallez Python et cochez "Add to PATH"
+
+❌ "ModuleNotFoundError: No module named 'psutil'"
+   → pip install psutil
+
+❌ Le .exe ne se lance pas
+   → Vérifiez dans dist/LLM_Checker.exe
+   → Testez sans --windowed pour voir les erreurs
+
+❌ Antivirus bloque le .exe
+   → Normal pour PyInstaller, ajoutez une exception
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  LIENS UTILES                                                  │
+└────────────────────────────────────────────────────────────────┘
+
+• Python: https://www.python.org/downloads/
+• Ollama: https://ollama.ai
+• Projet original: https://github.com/Pavelevich/llm-checker
+• PyInstaller: https://pyinstaller.org
+
+
+┌────────────────────────────────────────────────────────────────┐
+│  SUPPORT                                                       │
+└────────────────────────────────────────────────────────────────┘
+
+Pour toute question:
+1. Lisez BUILD_INSTRUCTIONS.md
+2. Consultez README.md
+3. Vérifiez que Python/pip sont bien installés
+
+
+═══════════════════════════════════════════════════════════════════
+
+Basé sur llm-checker par Pavelevich
+Version GUI standalone créée avec Python + tkinter + PyInstaller
+
+═══════════════════════════════════════════════════════════════════
