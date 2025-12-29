@@ -8,14 +8,21 @@
 │  POUR LES UTILISATEURS (Utiliser le .exe)                     │
 └────────────────────────────────────────────────────────────────┘
 
-1. Double-cliquez sur "LLM_Checker.exe"
-2. L'application détecte automatiquement votre hardware
-3. Consultez les 5 meilleurs modèles Ollama pour votre PC
-4. Changez le "Use Case" selon vos besoins
-5. Copiez les commandes "ollama pull" pour installer les modèles
+⚠️ IMPORTANT: Connexion Internet OBLIGATOIRE
+
+1. Vérifiez que vous avez une connexion Internet active
+2. Double-cliquez sur "LLM_Checker.exe"
+3. L'app synchronise automatiquement les modèles depuis ollama.com
+   (~30 secondes au premier lancement)
+4. L'application détecte automatiquement votre hardware
+5. Consultez les 5 meilleurs modèles Ollama pour votre PC
+6. Changez le "Use Case" selon vos besoins
+7. Copiez les commandes "ollama pull" pour installer les modèles
 
 ✅ Aucune installation requise!
 ✅ Fonctionne sur Windows 7/8/10/11
+✅ Toujours à jour avec les derniers modèles Ollama!
+⚠️ Connexion Internet obligatoire
 
 
 ┌────────────────────────────────────────────────────────────────┐
@@ -53,7 +60,7 @@
 
 Pour UTILISER le .exe:
   ✅ Windows 7/8/10/11 (64-bit)
-  ✅ Rien d'autre!
+  ⚠️ Connexion Internet active (OBLIGATOIRE)
 
 Pour CRÉER le .exe:
   ✅ Python 3.8 ou supérieur
@@ -84,7 +91,9 @@ python_gui/
 
 Attendez-vous à:
   • 15-25 MB sans compression UPX
-  • 8-15 MB avec compression UPX
+  • 10-18 MB avec compression UPX
+
+Le cache SQLite (~/.llm_checker/models_cache.db) fait ~2-5 MB
 
 
 ┌────────────────────────────────────────────────────────────────┐
@@ -108,7 +117,7 @@ Attendez-vous à:
    → Réinstallez Python et cochez "Add to PATH"
 
 ❌ "ModuleNotFoundError: No module named 'psutil'"
-   → pip install psutil
+   → pip install -r requirements.txt
 
 ❌ Le .exe ne se lance pas
    → Vérifiez dans dist/LLM_Checker.exe
@@ -116,6 +125,17 @@ Attendez-vous à:
 
 ❌ Antivirus bloque le .exe
    → Normal pour PyInstaller, ajoutez une exception
+
+❌ "Internet Connection Required" au démarrage
+   → Vérifiez votre connexion Internet
+   → L'application NÉCESSITE Internet pour fonctionner
+   → Elle synchronise toujours les derniers modèles depuis ollama.com
+   → Pas de mode offline disponible
+
+❌ "Sync failed" pendant l'utilisation
+   → Cliquez à nouveau sur "🌐 Sync Models"
+   → Vérifiez votre pare-feu/antivirus
+   → Assurez-vous que ollama.com est accessible
 
 
 ┌────────────────────────────────────────────────────────────────┐
